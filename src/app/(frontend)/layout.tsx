@@ -24,6 +24,7 @@ export const metadata: Metadata = {
     apple: '/img/apple-touch-icon-180.png',
   },
   openGraph: { type: 'website', locale: 'vi_VN', siteName: 'Song Anh', images: ['/img/hero-poster.webp'] },
+  ...(process.env.SITE_NOINDEX === '1' ? { robots: { index: false, follow: false } } : {}),
 }
 export const viewport: Viewport = { themeColor: '#141210' }
 

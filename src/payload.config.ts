@@ -1,6 +1,7 @@
 import { sqliteAdapter } from '@payloadcms/db-sqlite'
 import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { uploadthingStorage } from '@payloadcms/storage-uploadthing'
 import { en } from '@payloadcms/translations/languages/en'
 import { vi } from '@payloadcms/translations/languages/vi'
 import path from 'path'
@@ -52,8 +53,21 @@ export default buildConfig({
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },
-  db: sqliteAdapter({ client: { url: process.env.DATABASE_URL || 'file:./data/sa.db' } }),
+  // SQLite: file cục bộ (máy chủ riêng / Docker) hoặc Turso (libsql://…, kèm DATABASE_AUTH_TOKEN) khi chạy trên Netlify
+  db: sqliteAdapter({
+    client: { url: process.env.DATABASE_URL || 'file:./data/sa.db', authToken: process.env.DATABASE_AUTH_TOKEN || undefined },
+  }),
   email,
   sharp,
-  plugins: [],
+  plugins: [
+    // Ảnh tải lên: có UPLOADTHING_TOKEN (Netlify — không có ổ đĩa lâu dài) thì lưu trên UploadThing,
+    // không có thì lưu thư mục media/ như cũ. clientUploads: trình duyệt gửi thẳng lên UploadThing,
+    // tránh giới hạn ~6MB/request của hàm serverless.
+    uploadthingStorage({
+      enabled: Boolean(process.env.UPLOADTHING_TOKEN),
+      clientUploads: true,
+      collections: { media: true },
+      options: { token: process.env.UPLOADTHING_TOKEN, acl: 'public-read' },
+    }),
+  ],
 })

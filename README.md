@@ -66,6 +66,34 @@ data/sa.db                 cơ sở dữ liệu SQLite
 Đường dẫn trang giữ đúng như website WordPress cũ (vd. `/gioi-thieu`, `/tham-tra`); địa chỉ cũ có dấu `/` ở cuối
 tự chuyển hướng 308 nên không mất thứ hạng Google.
 
+### Deploy miễn phí trên Netlify (tên miền dạng `songanh.netlify.app`)
+
+Netlify không có ổ đĩa lưu lâu dài, nên dùng thêm hai dịch vụ miễn phí: **Turso** (SQLite trên mây) cho
+nội dung CMS và **UploadThing** cho ảnh tải lên. Cả ba đều đăng nhập bằng GitHub, không cần thẻ.
+
+1. **Turso** (turso.tech): tạo database `songanh`, vùng **AWS US East (Ohio)** (gần máy chủ Netlify) →
+   copy *Database URL* (`libsql://…`) và tạo *token*.
+2. **UploadThing** (uploadthing.com): tạo app `songanh` → *API Keys* → copy `UPLOADTHING_TOKEN`.
+3. **Nạp nội dung** (một lần, chạy trên máy có mã nguồn): điền 3 giá trị trên vào `.env` rồi `npm run seed`
+   — tạo bảng trên Turso và tải 367 ảnh lên UploadThing. Xong thì trả `.env` về như cũ nếu muốn chạy cục bộ.
+4. **Netlify** (netlify.com): *Add new project → Import from GitHub → `sa-corp-vn/SongAnhWeb`* (cho phép
+   Netlify truy cập tổ chức sa-corp-vn). *Project name* = phần tên miền mong muốn, vd. `songanh` →
+   `https://songanh.netlify.app`. Thêm biến môi trường:
+
+   | Biến | Giá trị |
+   |---|---|
+   | `DATABASE_URL`, `DATABASE_AUTH_TOKEN` | từ Turso |
+   | `UPLOADTHING_TOKEN` | từ UploadThing |
+   | `PAYLOAD_SECRET` | chuỗi ngẫu nhiên dài **mới** (không dùng lại khoá máy khác) |
+   | `NEXT_PUBLIC_SITE_URL` | `https://songanh.netlify.app` (đổi khi gắn tên miền thật) |
+   | `SITE_NOINDEX` | `1` khi sa-corp.vn cũ còn chạy; xoá khi website này thay thế hẳn |
+
+5. *Deploy* → vào `/admin` tạo tài khoản quản trị đầu tiên. Mỗi lần push lên `main`, Netlify tự build lại.
+
+Giới hạn gói miễn phí Netlify tính theo "credit" mỗi tháng (băng thông, số lần deploy…); hết credit thì
+website tạm dừng tới tháng sau — xem mức dùng ở *Netlify → Usage*. Khi lượng truy cập lớn, chuyển sang gói
+trả phí hoặc máy chủ riêng (Cách 1 bên dưới).
+
 **Cách 1 — Docker (khuyên dùng):** chép cả thư mục lên máy chủ (gồm `data/` và `media/`), tạo `.env`, rồi:
 
 ```bash

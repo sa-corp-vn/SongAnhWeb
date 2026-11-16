@@ -51,3 +51,6 @@ node_modules/
 
 # SQLite database
 /data/*.db*
+
+# Netlify (thư mục build/cấu hình cục bộ của Netlify CLI)
+.netlify

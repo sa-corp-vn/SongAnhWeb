@@ -1,0 +1,10 @@
+# Netlify (gói miễn phí): build Next.js + Payload. Netlify tự nhận Next.js và cài bộ chạy OpenNext.
+# Biến môi trường (DATABASE_URL, DATABASE_AUTH_TOKEN, UPLOADTHING_TOKEN, PAYLOAD_SECRET, …) đặt trong
+# Netlify → Site configuration → Environment variables — xem README mục "Deploy miễn phí trên Netlify".
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NEXT_TELEMETRY_DISABLED = "1"
