@@ -1,0 +1,10 @@
+/* Bổ sung cho bản Next.js */
+:root{
+  --font-sans:var(--f-sans),"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --font-serif:var(--f-serif),"Times New Roman",Times,serif;
+}
+.page-inner .footer{margin-top:0}
+.page-inner .page{background:var(--c-white)}
+.wrap-input::after{transition-delay:var(--d,0s)}
+.btn[disabled]{opacity:.6;pointer-events:none}
+.p-prose img{max-width:100%;height:auto}

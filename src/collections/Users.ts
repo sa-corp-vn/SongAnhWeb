@@ -2,12 +2,8 @@ import type { CollectionConfig } from 'payload'
 
 export const Users: CollectionConfig = {
   slug: 'users',
-  admin: {
-    useAsTitle: 'email',
-  },
+  labels: { singular: 'Người quản trị', plural: 'Người quản trị' },
+  admin: { useAsTitle: 'email', group: 'Hệ thống' },
   auth: true,
-  fields: [
-    // Email added by default
-    // Add more fields as needed
-  ],
+  fields: [{ name: 'name', label: 'Họ tên', type: 'text' }],
 }

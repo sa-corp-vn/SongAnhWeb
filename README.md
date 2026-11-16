@@ -1,67 +1,101 @@
-# Payload Blank Template
+# Website Song Anh — Next.js + Payload CMS
 
-This template comes configured with the bare minimum to get started on anything you need.
+Website chính thức của Công ty CP Tư vấn Đầu tư Xây dựng Song Anh. Giao diện theo template (hiệu ứng GSAP + Lenis), nội dung quản lý bằng **Payload CMS** chạy chung trong cùng ứng dụng Next.js.
 
-## Quick start
+| Thành phần | Công nghệ |
+|---|---|
+| Giao diện | Next.js 16 (App Router), React 19, TypeScript |
+| Quản trị nội dung | Payload CMS 3 — trang quản trị tại `/admin` (tiếng Việt) |
+| Cơ sở dữ liệu | SQLite (`data/sa.db`) — đổi sang Postgres khi cần, xem bên dưới |
+| Hiệu ứng | GSAP + ScrollTrigger, Lenis (cuộn mượt), Leaflet (bản đồ dự án) |
 
-This template can be deployed directly from our Cloud hosting and it will setup MongoDB and cloud S3 object storage for media.
+## Chạy trên máy
 
-## Quick Start - local setup
+Cần Node.js ≥ 20.18.
 
-To spin up this template locally, follow these steps:
+```bash
+npm install
+cp .env.example .env        # rồi đặt PAYLOAD_SECRET là một chuỗi ngẫu nhiên dài
+npm run seed                 # nạp nội dung chuyển từ sa-corp.vn (chỉ cần lần đầu)
+npm run dev                  # http://localhost:3000  ·  quản trị: http://localhost:3000/admin
+```
 
-### Clone
+Lần đầu vào `/admin`, Payload yêu cầu **tạo tài khoản quản trị đầu tiên** — người tạo đầu tiên là quản trị viên.
 
-After you click the `Deploy` button above, you'll want to have standalone copy of this repo on your machine. If you've already cloned this repo, skip to [Development](#development).
+Bản production: `npm run build && npm start`.
 
-### Development
+## Quản trị nội dung (`/admin`)
 
-1. First [clone the repo](#clone) if you have not done so already
-2. `cd my-project && cp .env.example .env` to copy the example environment variables. You'll need to add the `MONGODB_URL` from your Cloud project to your `.env` if you want to use S3 storage and the MongoDB database that was created for you.
+| Mục | Dùng để |
+|---|---|
+| Tin tức › Bài viết | Đăng / sửa bài. Có **bản nháp** — chỉ hiện trên website khi bấm *Xuất bản* |
+| Tin tức › Chuyên mục tin | Kiến thức thiết kế, Hoạt động Song Anh, Tuyển dụng… |
+| Dự án › Dự án | Thông tin, số liệu, vị trí trên bản đồ, "hiện ở trang chủ" (8 dự án đầu theo thứ tự) |
+| Dịch vụ › Dịch vụ | 10 dịch vụ tư vấn thiết kế |
+| Nội dung › Trang văn bản | Chính sách bảo mật và các trang văn bản khác |
+| Nội dung › Thư viện ảnh | Ảnh tải lên |
+| Khách hàng › Yêu cầu liên hệ | Mọi yêu cầu gửi từ form liên hệ (đánh dấu Mới / Đã liên hệ / Đã xong) |
+| Hệ thống › Thông tin công ty | Hotline, email, địa chỉ, MSDN, mạng xã hội — hiện ở footer và trang Liên hệ |
 
-3. `pnpm install && pnpm dev` to install dependencies and start the dev server
-4. open `http://localhost:3000` to open the app in your browser
+**Nội dung bài:** bài mới soạn trong ô *Nội dung* (trình soạn thảo). Bài chuyển từ website cũ được giữ nguyên ở ô
+*Nội dung HTML* để không mất bảng, ảnh, chú thích — vẫn sửa trực tiếp được. Nếu ô *Nội dung* có chữ, website dùng ô đó.
 
-That's it! Changes made in `./src` will be reflected in your app. Follow the on-screen instructions to login and create your first admin user. Then check out [Production](#production) once you're ready to build and serve your app, and [Deployment](#deployment) when you're ready to go live.
+Khi bấm *Lưu / Xuất bản*, trang liên quan được làm mới ngay (không cần build lại).
 
-#### Docker (Optional)
+## Cấu trúc mã nguồn
 
-If you prefer to use Docker for local development instead of a local MongoDB instance, the provided docker-compose.yml file can be used.
+```
+src/
+  app/(frontend)/          các trang website (trang chủ, [slug] cho bài/dự án/dịch vụ, danh sách…)
+  app/(payload)/           trang quản trị Payload (tự sinh)
+  app/sitemap.ts robots.ts sitemap.xml, robots.txt tự động
+  collections/ globals/    cấu trúc dữ liệu CMS
+  components/home/HomeView.tsx   giao diện trang chủ theo template
+  components/site/         hero, thẻ dự án/tin, footer, menu, form liên hệ, bản đồ…
+  components/views/        khung trang bài viết, dự án, dịch vụ, danh sách tin
+  fx/                      hiệu ứng (GSAP): core, home (trang chủ), inner (trang con), runtime (chuyển trang, tìm kiếm)
+  seed/                    script + dữ liệu nạp nội dung ban đầu (images/: ảnh đại diện để nạp vào Thư viện ảnh)
+  styles/                  CSS theo template
+public/uploads/            ảnh trong nội dung bài (chuyển từ website cũ)
+media/                     ảnh tải lên qua CMS
+data/sa.db                 cơ sở dữ liệu SQLite
+```
 
-To do so, follow these steps:
+## Đưa lên máy chủ
 
-- Modify the `MONGODB_URL` in your `.env` file to `mongodb://127.0.0.1/<dbname>`
-- Modify the `docker-compose.yml` file's `MONGODB_URL` to match the above `<dbname>`
-- Run `docker-compose up` to start the database, optionally pass `-d` to run in the background.
+Đường dẫn trang giữ đúng như website WordPress cũ (vd. `/gioi-thieu`, `/tham-tra`); địa chỉ cũ có dấu `/` ở cuối
+tự chuyển hướng 308 nên không mất thứ hạng Google.
 
-## How it works
+**Cách 1 — Docker (khuyên dùng):** chép cả thư mục lên máy chủ (gồm `data/` và `media/`), tạo `.env`, rồi:
 
-The Payload config is tailored specifically to the needs of most websites. It is pre-configured in the following ways:
+```bash
+docker compose up -d --build      # website chạy ở cổng 3000
+```
 
-### Collections
+Đặt Nginx/Caddy phía trước để gắn tên miền và HTTPS.
 
-See the [Collections](https://payloadcms.com/docs/configuration/collections) docs for details on how to extend this functionality.
+**Cách 2 — Node.js + PM2:** `npm ci && npm run build && pm2 start npm --name songanh -- start`.
 
-- #### Users (Authentication)
+**Sao lưu:** chỉ cần 2 thư mục `data/` (nội dung) và `media/` (ảnh tải lên).
 
-  Users are auth-enabled collections that have access to the admin panel.
+### Biến môi trường (`.env`)
 
-  For additional help, see the official [Auth Example](https://github.com/payloadcms/payload/tree/3.x/examples/auth) or the [Authentication](https://payloadcms.com/docs/authentication/overview#authentication-overview) docs.
+| Biến | Ý nghĩa |
+|---|---|
+| `DATABASE_URL` | `file:./data/sa.db` (SQLite) |
+| `PAYLOAD_SECRET` | Khoá bí mật — chuỗi ngẫu nhiên dài, **mỗi môi trường một khoá, không chia sẻ** |
+| `NEXT_PUBLIC_SITE_URL` | Tên miền chính thức, vd. `https://sa-corp.vn` (dùng cho sitemap, thẻ chia sẻ) |
+| `SMTP_HOST` `SMTP_PORT` `SMTP_USER` `SMTP_PASS` | Máy chủ email để gửi thông báo khi có yêu cầu liên hệ. Để trống = chỉ lưu vào CMS |
+| `CONTACT_NOTIFY_TO` | Email nhận thông báo liên hệ (mặc định `tnc@sa-corp.vn`) |
 
-- #### Media
+### Khi lượng truy cập / số người biên tập tăng: chuyển sang Postgres
 
-  This is the uploads enabled collection. It features pre-configured sizes, focal point and manual resizing to help you manage your pictures.
+1. `npm install @payloadcms/db-postgres@3.91.0`
+2. Trong `src/payload.config.ts` thay `sqliteAdapter(...)` bằng `postgresAdapter({ pool: { connectionString: process.env.DATABASE_URL } })`
+3. Đặt `DATABASE_URL=postgres://...`, chạy `npm run payload migrate:create` rồi `npm run payload migrate`
+4. Chạy lại `npm run seed` để nạp nội dung vào cơ sở dữ liệu mới
 
-### Docker
+## Ghi chú
 
-Alternatively, you can use [Docker](https://www.docker.com) to spin up this template locally. To do so, follow these steps:
-
-1. Follow [steps 1 and 2 from above](#development), the docker-compose file will automatically use the `.env` file in your project root
-1. Next run `docker-compose up`
-1. Follow [steps 4 and 5 from above](#development) to login and create your first admin user
-
-That's it! The Docker instance will help you get up and running quickly while also standardizing the development environment across your teams.
-
-## Questions
-
-If you have any issues or questions, reach out to us on [Discord](https://discord.com/invite/payload) or start a [GitHub discussion](https://github.com/payloadcms/payload/discussions).
+- Phiên bản đã ghim: Payload 3.91.0, Next.js 16.4.3 (Payload ≥ 3.92 yêu cầu Node ≥ 24.22).
+- Bản đồ dự án dùng ô bản đồ OpenStreetMap như website cũ.
