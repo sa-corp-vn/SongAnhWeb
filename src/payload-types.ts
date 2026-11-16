@@ -208,6 +208,9 @@ export interface Media {
    * Mô tả ngắn nội dung ảnh — tốt cho Google và người khiếm thị.
    */
   alt: string;
+  _key?: string | null;
+  prefix?: string | null;
+  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -672,6 +675,9 @@ export interface PagesSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  _key?: T;
+  prefix?: T;
+  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
